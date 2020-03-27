@@ -1,16 +1,10 @@
 //dependencies required for the app
 var express = require("express");
-var cookieParser = require('cookie-parser');
-var cookieEncrypter = require('./cook');
 var bodyParser = require("body-parser");
+var cookieParser = require('cookie-parser');
 var app = express();
 
-var config = require('./config.json');
-
-var secretKey = config["secret_key"];
-
-app.use(cookieParser(secretKey));
-app.use(cookieEncrypter(secretKey));
+app.use(cookieParser());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
@@ -30,7 +24,6 @@ app.post("/addtask", function(req, res) {
     task.push(newTask);
     res.cookie('should_work', "true", {
       maxAge: 900000,
-      signed: true,
       httpOnly: true
     });
     res.redirect("/");
@@ -52,7 +45,6 @@ app.post("/removetask", function(req, res) {
     }
     res.cookie('should_work', "false", {
       maxAge: 900000,
-      signed: true,
       httpOnly: true
     });
     res.redirect("/");
@@ -61,9 +53,9 @@ app.post("/removetask", function(req, res) {
 app.get("/entertainment", function(req, res) {
     console.log("shouldWork")
     console.log("entertainment")
-    console.log(req.signedCookies)
-    if (req.signedCookies.should_work) {
-        var shouldWork = new Buffer(req.signedCookies.should_work).toString();
+    console.log(req.cookies)
+    if (req.cookies.should_work) {
+        var shouldWork = new Buffer(req.cookies.should_work).toString();
         console.log(shouldWork)
         if (shouldWork == "false") {
             console.log("redirecting")
